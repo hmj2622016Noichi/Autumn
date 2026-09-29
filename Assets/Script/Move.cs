@@ -47,6 +47,8 @@ public class Move : MonoBehaviour
 			{
 				pickaxeRb.linearVelocity = shootPoint.forward * shootSpeed;
 			}
+
+			Destroy(pickaxe, 5f);
 		}
 	}
 
