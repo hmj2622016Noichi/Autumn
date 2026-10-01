@@ -1,36 +1,39 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
-public class SkeletonSpawner : MonoBehaviour
+public class DestroyOnPickaxe : MonoBehaviour
 {
-	public GameObject skeletonPrefab;
-	public float moveSpeed = 5f;
+	Vector3 spawnPosition;
+	Quaternion spawnRotation;
 
-	void Update()
+	void Start()
 	{
-		if (Keyboard.current.eKey.wasPressedThisFrame)
-		{
-			Vector3 spawnPosition = new Vector3(12f, 2f, 9f);
-			GameObject skeleton = Instantiate(skeletonPrefab, spawnPosition, transform.rotation);
-			skeleton.AddComponent<SkeletonMove>().moveSpeed = moveSpeed;
-		}
-	}
-}
-
-public class SkeletonMove : MonoBehaviour
-{
-	public float moveSpeed;
-
-	void Update()
-	{
-		transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+		spawnPosition = transform.position;
+		spawnRotation = transform.rotation;
 	}
 
-	void OnCollisionEnter(Collision collision)
+	private void OnCollisionEnter(Collision collision)
 	{
+		//つるはしに当たると削除後再スポーン
 		if (collision.gameObject.CompareTag("Pickaxe"))
 		{
-			Destroy(gameObject);
+			gameObject.SetActive(false);
+			ScoreManager.instance.AddScore(1);
+			Invoke(nameof(Respawn), 10f);
 		}
+		//しゃべるに当たると削除後再スポーン
+		if (collision.gameObject.CompareTag("Shovel"))
+		{
+			gameObject.SetActive(false);
+			ScoreManager.instance.AddScore(1);
+			Invoke(nameof(Respawn), 10f);
+		}
+	}
+	//再スポーン
+	void Respawn()
+	{
+		transform.position = spawnPosition;
+		transform.rotation = spawnRotation;
+		gameObject.SetActive(true);
 	}
 }
